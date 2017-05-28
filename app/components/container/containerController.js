@@ -24,7 +24,6 @@ function ($q, $scope, $state, $transition$, $filter, Container, ContainerCommit,
       $scope.container.edit = false;
       $scope.container.newContainerName = $filter('trimcontainername')(container.Name);
 
-
       //> Process all available names and aliases and save the summary to $scope.container.aux
       var aux = {};
       aux.shortid = container.Id.slice(0,12);
