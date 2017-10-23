@@ -40,6 +40,7 @@ type (
 		EndpointManagement bool   `json:"EndpointManagement"`
 		Analytics          bool   `json:"Analytics"`
 		Version            string `json:"Version"`
+		Commit             string `json:"Commit"`
 	}
 
 	// LDAPSettings represents the settings used to connect to a LDAP server.
@@ -388,6 +389,8 @@ type (
 )
 
 const (
+	// CommitVersion is the short SHA of the git commit the binary is built from.
+	Commit = ""
 	// APIVersion is the version number of the Portainer API.
 	APIVersion = "1.15.2"
 	// DBVersion is the version number of the Portainer database.

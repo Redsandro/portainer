@@ -2,7 +2,9 @@ angular.module('sidebar', [])
 .controller('SidebarController', ['$q', '$scope', '$state', 'Settings', 'EndpointService', 'StateManager', 'EndpointProvider', 'Notifications', 'Authentication', 'UserService',
 function ($q, $scope, $state, Settings, EndpointService, StateManager, EndpointProvider, Notifications, Authentication, UserService) {
 
-  $scope.uiVersion = StateManager.getState().application.version;
+  var applicationState = StateManager.getState().application;
+  $scope.uiVersion = applicationState.version;
+  $scope.Commit = (applicationState.Commit.length === 0) ? "github.com/portainer/portainer/releases/tag/"+applicationState.version : applicationState.Commit;
   $scope.displayExternalContributors = StateManager.getState().application.displayExternalContributors;
   $scope.logo = StateManager.getState().application.logo;
   $scope.endpoints = [];

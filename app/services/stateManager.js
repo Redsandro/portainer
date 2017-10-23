@@ -54,6 +54,7 @@ angular.module('portainer.services')
         state.application.analytics = status.Analytics;
         state.application.endpointManagement = status.EndpointManagement;
         state.application.version = status.Version;
+        state.application.Commit = status.Commit;
         state.application.logo = settings.LogoURL;
         state.application.displayExternalContributors = settings.DisplayExternalContributors;
         LocalStorage.storeApplicationState(state.application);

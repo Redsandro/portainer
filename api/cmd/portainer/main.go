@@ -103,6 +103,7 @@ func initStatus(authorizeEndpointMgmt bool, flags *portainer.CLIFlags) *portaine
 		Authentication:     !*flags.NoAuth,
 		EndpointManagement: authorizeEndpointMgmt,
 		Version:            portainer.APIVersion,
+		Commit:             portainer.Commit,
 	}
 }
 
