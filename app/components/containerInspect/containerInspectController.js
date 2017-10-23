@@ -6,11 +6,13 @@ function ($scope, $transition$, Notifications, ContainerService) {
     DisplayTextView: false
   };
   $scope.containerInfo = {};
+  $scope.EncodeJSON = function(obj){ return encodeURIComponent(JSON.stringify(obj, null, 2)); };
 
   function initView() {
     ContainerService.inspect($transition$.params().id)
     .then(function success(d) {
       $scope.containerInfo = d;
+      $scope.date = new Date();
     })
     .catch(function error(e) {
       Notifications.error('Failure', e, 'Unable to inspect container');

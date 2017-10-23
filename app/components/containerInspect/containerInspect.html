@@ -14,6 +14,7 @@
           <label class="btn btn-primary" ng-model="state.DisplayTextView" uib-btn-radio="false"><i class="fa fa-code space-right" aria-hidden="true"></i>Tree</label>
           <label class="btn btn-primary" ng-model="state.DisplayTextView" uib-btn-radio="true"><i class="fa fa-file-text-o space-right" aria-hidden="true"></i>Text</label>
         </span>
+        <a role="label" class="btn btn-sm btn-primary" href="data:text/json;charset=utf-8,{{ EncodeJSON(containerInfo) }}" download="{{ date | date:'yyyyMMddhhmm'}}-inspect-{{(containerInfo.Id||'').slice(0,12)}}-{{containerInfo.Name|trimcontainername}}.json"><i class="fa fa-download space-right" aria-hidden="true"></i>Save</a>
       </rd-widget-header>
       <rd-widget-body>
         <pre ng-show="state.DisplayTextView">{{ containerInfo|json:4 }}</pre>
