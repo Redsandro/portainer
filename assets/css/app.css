@@ -341,6 +341,13 @@ ul.sidebar .sidebar-list a.active {
   color: #fff;
 }
 
+.sidebar-header .version {
+  font-size: 11px;
+  margin: -22px 0 0 70px;
+  color: #fff;
+  line-height: normal;
+}
+
 #sidebar-wrapper {
   display: flex;
   flex-flow: column;

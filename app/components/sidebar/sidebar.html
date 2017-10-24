@@ -5,6 +5,7 @@
       <img ng-if="logo" ng-src="{{ logo }}" class="img-responsive logo">
       <img ng-if="!logo" src="images/logo.png" class="img-responsive logo" alt="Portainer">
       <span class="menu-icon glyphicon glyphicon-transfer"></span>
+      <div ng-if="!logo" class="version">{{ uiVersion }}</div>
     </a>
   </div>
   <div class="sidebar-content">
@@ -81,7 +82,7 @@
       </div>
     </li>
   </ul>
-  <div class="sidebar-footer-content">
+  <div ng-if="logo" class="sidebar-footer-content">
     <img src="images/logo_small.png" class="img-responsive logo" alt="Portainer">
     <span class="version">{{ uiVersion }}</span>
   </div>
