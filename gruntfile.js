@@ -11,49 +11,46 @@ module.exports = function (grunt) {
     pattern: ['grunt-*', 'gruntify-*']
   });
 
-  grunt.registerTask('default', ['eslint', 'build']);
-  grunt.registerTask('before-copy', [
-    'vendor:',
-    'html2js',
-    'useminPrepare:release',
-    'concat',
-    'postcss:build',
-    'clean:tmpl',
-    'replace',
-    'uglify'
-  ]);
-  grunt.registerTask('after-copy', [
-    'filerev',
-    'usemin',
-    'clean:tmp'
-  ]);
-  grunt.registerTask('build-webapp', [
-    'config:prod',
-    'clean:all',
-    'before-copy',
-    'copy:assets',
-    'after-copy'
-  ]);
-  grunt.registerTask('build', [
-    'config:dev',
-    'clean:app',
-    'shell:buildBinary:linux:' + arch,
-    'shell:downloadDockerBinary:linux:' + arch,
-    'vendor:regular',
-    'html2js',
-    'useminPrepare:dev',
-    'concat',
-    'clean:tmpl',
-    'replace',
-    'copy',
-    'after-copy'
-  ]);
-  grunt.task.registerTask('release', 'release:<platform>:<arch>', function(p, a) {
-    grunt.task.run(['config:prod', 'clean:all', 'shell:buildBinary:'+p+':'+a, 'shell:downloadDockerBinary:'+p+':'+a, 'before-copy', 'copy:assets', 'after-copy' ]);
-  });
+  grunt.registerTask('default', ['eslint', 'dev']);
   grunt.registerTask('lint', ['eslint']);
-  grunt.registerTask('run-dev', ['build', 'shell:run', 'watch:build']);
   grunt.registerTask('clear', ['clean:app']);
+
+  grunt.registerTask('dev', ['frontend:dev', 'build:linux:' + arch]);
+  grunt.registerTask('run-dev', ['dev', 'shell:run', 'watch:frontend']);
+  grunt.task.registerTask('release', 'release:<platform>:<arch>', function(p, a) {
+    grunt.task.run(['frontend:release', 'build:'+p+':'+a]);
+  });
+
+  grunt.task.registerTask('build', 'build:<platform>:<arch>', function(p, a) {
+    grunt.task.run([
+      'shell:buildBinary:' + p + ':' + a,
+      'shell:downloadDockerBinary:' + p + ':' + a
+    ]);
+  });
+
+  grunt.task.registerTask('frontend', 'frontend:dev|release', function(d) {
+    grunt.task.run([
+      'config:' + d,
+      'clean:' + ((d === 'dev') ? 'app' : 'all'),
+      'vendor:' + ((d === 'dev') ? 'regular' : ''),
+      'html2js',
+      'useminPrepare:' + d,
+      'concat'
+    ]);
+    if (d === 'release') {
+      grunt.task.run('postcss:build');
+    }
+    grunt.task.run(['clean:tmpl', 'replace']);
+    if (d === 'release') {
+      grunt.task.run('uglify');
+    }
+    grunt.task.run([
+      'copy' + ((d === 'dev') ? '' : ':assets'),
+      'filerev',
+      'usemin',
+      'clean:tmp'
+    ]);
+  });
 
   // Project configuration.
   grunt.initConfig({
@@ -61,8 +58,8 @@ module.exports = function (grunt) {
     shippedDockerVersion: '17.09.0-ce',
     pkg: grunt.file.readJSON('package.json'),
     config: {
-      dev:  { options: { variables: { 'environment': 'development' }}},
-      prod: { options: { variables: { 'environment': 'production'  }}}
+      dev:     { options: { variables: { 'environment': 'development' }}},
+      release: { options: { variables: { 'environment': 'production'  }}}
     },
     src: {
       js: ['app/**/__module.js', 'app/**/*.js', '!app/**/*.spec.js'],
@@ -151,7 +148,7 @@ module.exports = function (grunt) {
       },
       vendor: {
         options: { preserveComments: 'some' }, // Preserve license comments
-        files: { '<%= distdir %>/js/vendor.js': ['<%= src.jsVendor %>'] ,
+        files: { '<%= distdir %>/js/vendor.js': ['<%= src.jsVendor %>'],
                  '<%= distdir %>/js/angular.js': ['<%= src.angularVendor %>']
         }
       }
@@ -169,9 +166,9 @@ module.exports = function (grunt) {
       }
     },
     watch: {
-      build: {
+      frontend: {
         files: ['<%= src.js %>', '<%= src.css %>', '<%= src.tpl %>', '<%= src.html %>'],
-        tasks: ['build']
+        tasks: ['dev']
       }
     },
     shell: {
