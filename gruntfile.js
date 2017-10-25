@@ -39,6 +39,7 @@ module.exports = function (grunt) {
     'clean:app',
     'shell:buildBinary:linux:' + arch,
     'shell:downloadDockerBinary:linux:' + arch,
+    'shell:extractDockerBinary:linux:' + arch,
     'vendor:regular',
     'html2js',
     'useminPrepare:dev',
@@ -49,15 +50,16 @@ module.exports = function (grunt) {
     'after-copy'
   ]);
   grunt.task.registerTask('release', 'release:<platform>:<arch>', function(p, a) {
-    grunt.task.run(['config:prod', 'clean:all', 'shell:buildBinary:'+p+':'+a, 'shell:downloadDockerBinary:'+p+':'+a, 'before-copy', 'copy:assets', 'after-copy' ]);
+    grunt.task.run(['config:prod', 'clean:all', 'shell:buildBinary:'+p+':'+a, 'shell:downloadDockerBinary:'+p+':'+a, 'shell:extractDockerBinary:'+p+':'+a, 'before-copy', 'copy:assets', 'after-copy']);
   });
   grunt.registerTask('lint', ['eslint']);
-  grunt.registerTask('run-dev', ['build', 'shell:run', 'watch:build']);
+  grunt.registerTask('run-dev', ['build', 'shell:rm', 'shell:run', 'watch:build']);
   grunt.registerTask('clear', ['clean:app']);
 
   // Project configuration.
   grunt.initConfig({
     distdir: 'dist/public',
+    dockerdir: './docker_binaries/',  // Must include trailing slash
     shippedDockerVersion: '17.09.0-ce',
     pkg: grunt.file.readJSON('package.json'),
     config: {
@@ -73,7 +75,7 @@ module.exports = function (grunt) {
     },
     clean: {
       all: ['<%= distdir %>/../*'],
-      app: ['<%= distdir %>/*', '!<%= distdir %>/../portainer*', '!<%= distdir %>/../docker*'],
+      app: ['<%= distdir %>/*'],
       tmpl: ['<%= distdir %>/templates'],
       tmp: ['<%= distdir %>/js/*', '!<%= distdir %>/js/app.*.js', '<%= distdir %>/css/*', '!<%= distdir %>/css/app.*.css']
     },
@@ -151,7 +153,7 @@ module.exports = function (grunt) {
       },
       vendor: {
         options: { preserveComments: 'some' }, // Preserve license comments
-        files: { '<%= distdir %>/js/vendor.js': ['<%= src.jsVendor %>'] ,
+        files: { '<%= distdir %>/js/vendor.js': ['<%= src.jsVendor %>'],
                  '<%= distdir %>/js/angular.js': ['<%= src.angularVendor %>']
         }
       }
@@ -185,24 +187,38 @@ module.exports = function (grunt) {
           }
         }
       },
-      run: {
-        command: [
-          'docker rm -f portainer',
-          'docker run -d -p 9000:9000 -v $(pwd)/dist:/app -v /tmp/portainer:/data -v /var/run/docker.sock:/var/run/docker.sock:z --name portainer portainer/base /app/portainer-linux-' + arch + ' --no-analytics'
-        ].join(';')
-      },
+      rm: { command: 'if [ -z "$(docker container inspect portainer 2>&1 | grep "Error:")" ]; then docker container rm -f portainer; fi' },
+      run: { command: 'docker run -d -p 9000:9000 -v $(pwd)/dist:/app -v /tmp/portainer:/data -v /var/run/docker.sock:/var/run/docker.sock:z --name portainer portainer/base /app/portainer-linux-' + arch + ' --no-analytics' },
       downloadDockerBinary: {
         command: function(p, a) {
-          if (p === 'windows') p = 'win';
-          if (p === 'darwin') p = 'mac';
-          if (a === 'amd64') a = 'x86_64';
-          if (a === 'arm') a = 'armhf';
-          if (a === 'arm64') a = 'aarch64';
-          if (grunt.file.isFile( ( p === 'win' ) ? 'dist/docker.exe' : 'dist/docker' )) {
-            return 'echo "Docker binary exists"';
-          } else {
-            return 'build/download_docker_binary.sh ' + p + ' ' + a + ' <%= shippedDockerVersion %>';
-          }
+          var ext = ((p === 'windows') ? '.zip' : '.tgz');
+          var tarname = 'docker-<%= shippedDockerVersion %>';
+
+          var ps = { 'windows': 'win', 'darwin': 'mac' };
+          var as = { 'amd64': 'x86_64', 'arm': 'armhf', 'arm64': 'aarch64' };
+          var ip = ((ps[p] === undefined) ? p : ps[p]);
+          var ia = ((as[a] === undefined) ? a : as[a]);
+
+          return [
+            'mkdir -pv <%= dockerdir %>',
+            'wget "https://download.docker.com/' + ip + '/static/stable/' + ia + '/' + tarname + ext + '"',
+            'mv ' + tarname + ext + ' <%= dockerdir %>' + tarname + '-' + p + '-' + a + ext
+          ].join(';');
+        }
+      },
+      extractDockerBinary: {
+        command: function(p, a) {
+          var tarname = 'docker-<%= shippedDockerVersion %>-' + p + '-' + a + ((p === 'windows') ? '.zip' : '.tgz');
+
+          return [
+            'rm -rf .tmp/docker-extract',
+            'mkdir -pv .tmp/docker-extract',
+            ((p === 'windows') ?
+              'unzip <%= dockerdir %>' + tarname + ' -d ".tmp/docker-extract"' :
+              'tar -xf <%= dockerdir %>' + tarname + ' -C ".tmp/docker-extract"'
+            ),
+            'mv .tmp/docker-extract/docker/docker' + ((p === 'windows') ? '.exe' : '') + ' <%= distdir %>/../'
+          ].join(';');
         }
       }
     },
