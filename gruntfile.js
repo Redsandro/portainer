@@ -9,7 +9,7 @@ var harchs = {
     'arm64': 'aarch64',
     'ppc64': 'ppc64le',
     's390x': 's390x',
-    'x64': 'x86_64'
+    'x64': 'amd64'
 };
 
 module.exports = function (grunt) {
@@ -66,7 +66,7 @@ module.exports = function (grunt) {
     grunt.task.run(['config:prod', 'clean:all', 'shell:buildBinary:'+p+':'+a, 'shell:downloadDockerBinary:'+p+':'+a, 'before-copy', 'copy:assets', 'after-copy']);
   });
   grunt.registerTask('lint', ['eslint']);
-  grunt.registerTask('run-dev', ['build', 'shell:run', 'watch:build']);
+  grunt.registerTask('run-dev', ['build', 'shell:run', 'watch:frontend']);
   grunt.registerTask('clear', ['clean:app']);
 
   // Load content of `vendor.yml` to src.jsVendor, src.cssVendor and src.angularVendor
@@ -94,6 +94,7 @@ module.exports = function (grunt) {
     src: {
       js: ['<%= workdir %>app/**/__module.js', '<%= workdir %>app/**/*.js', '!<%= workdir %>app/**/*.spec.js'],
       jsTpl: ['<%= distdir %>templates/**/*.js'],
+      go: ['<%= workdir %>api/**/*.go'],
       html: ['<%= workdir %>index.html'],
       tpl: ['<%= workdir %>app/components/**/*.html', '<%= workdir %>app/directives/**/*.html'],
       css: ['<%= workdir %>assets/css/app.css']
@@ -102,7 +103,7 @@ module.exports = function (grunt) {
       all: ['<%= distdir %>../*'],
       app: ['<%= distdir %>*'],
       tmpl: ['<%= distdir %>templates'],
-      tmp: ['<%= distdir %>js/*', '!<%= distdir %>js/app.*.js', '<%= distdir %>css/*', '!<%= distdir %>/css/app.*.css']
+      tmp: ['<%= distdir %>js/*', '!<%= distdir %>js/app.*.js', '<%= distdir %>css/*', '!<%= distdir %>css/app.*.css']
     },
     useminPrepare: {
       dev: {
@@ -196,8 +197,14 @@ module.exports = function (grunt) {
       }
     },
     watch: {
-      build: {
+      frontend: {
+        options: { spawn: false },
         files: ['<%= src.js %>', '<%= src.css %>', '<%= src.tpl %>', '<%= src.html %>'],
+        tasks: ['build']
+      },
+      backend: {
+        options: { spawn: false },
+        files: ['<%= src.go %>'],
         tasks: ['build']
       }
     },
