@@ -1,6 +1,7 @@
 var autoprefixer = require('autoprefixer');
 var cssnano = require('cssnano');
 var loadGruntTasks = require('load-grunt-tasks');
+var dwork = ( process.env.WORKDIR === '' ) ? './' : process.env.WORKDIR ; // Must include trailing slash
 var os = require('os');
 var harch = os.arch();
 var harchs = {
@@ -20,7 +21,8 @@ module.exports = function (grunt) {
   }
 
   loadGruntTasks(grunt, {
-    pattern: ['grunt-*', 'gruntify-*']
+    config: dwork + 'package.json',
+    pattern: ['grunt*', '@*/grunt-*', 'gruntify-*']
   });
 
   grunt.registerTask('default', ['eslint', 'build']);
@@ -67,27 +69,40 @@ module.exports = function (grunt) {
   grunt.registerTask('run-dev', ['build', 'shell:run', 'watch:build']);
   grunt.registerTask('clear', ['clean:app']);
 
+  // Load content of `vendor.yml` to src.jsVendor, src.cssVendor and src.angularVendor
+  grunt.registerTask('vendor', 'vendor:<mininified|regular>', function(min) {
+    // Argument `min` defaults to 'minified'
+    var m = (min === '') ? 'minified' : min;
+    var v = grunt.file.readYAML(dwork + 'vendor.yml');
+    for (var type in v) {
+      if (v.hasOwnProperty(type)) {
+        grunt.config('src.' + type + 'Vendor', v[type][m]);
+      }
+    }
+  });
+
   // Project configuration.
   grunt.initConfig({
-    distdir: 'dist/public',
+    distdir: 'dist/public/', // Must include trailing slash
+    workdir: dwork, // Must include trailing slash
     shippedDockerVersion: '17.09.0-ce',
-    pkg: grunt.file.readJSON('package.json'),
+    pkg: grunt.file.readJSON(dwork+'package.json'),
     config: {
       dev:  { options: { variables: { 'environment': 'development' }}},
       prod: { options: { variables: { 'environment': 'production'  }}}
     },
     src: {
-      js: ['app/**/__module.js', 'app/**/*.js', '!app/**/*.spec.js'],
-      jsTpl: ['<%= distdir %>/templates/**/*.js'],
-      html: ['index.html'],
-      tpl: ['app/components/**/*.html', 'app/directives/**/*.html'],
-      css: ['assets/css/app.css']
+      js: ['<%= workdir %>app/**/__module.js', '<%= workdir %>app/**/*.js', '!<%= workdir %>app/**/*.spec.js'],
+      jsTpl: ['<%= distdir %>templates/**/*.js'],
+      html: ['<%= workdir %>index.html'],
+      tpl: ['<%= workdir %>app/components/**/*.html', '<%= workdir %>app/directives/**/*.html'],
+      css: ['<%= workdir %>assets/css/app.css']
     },
     clean: {
-      all: ['<%= distdir %>/../*'],
-      app: ['<%= distdir %>/*', '!<%= distdir %>/../portainer*', '!<%= distdir %>/../docker*'],
-      tmpl: ['<%= distdir %>/templates'],
-      tmp: ['<%= distdir %>/js/*', '!<%= distdir %>/js/app.*.js', '<%= distdir %>/css/*', '!<%= distdir %>/css/app.*.css']
+      all: ['<%= distdir %>../*'],
+      app: ['<%= distdir %>*'],
+      tmpl: ['<%= distdir %>templates'],
+      tmp: ['<%= distdir %>js/*', '!<%= distdir %>js/app.*.js', '<%= distdir %>css/*', '!<%= distdir %>/css/app.*.css']
     },
     useminPrepare: {
       dev: {
@@ -110,61 +125,61 @@ module.exports = function (grunt) {
         }
       }
     },
-    filerev: { files: { src: ['<%= distdir %>/js/*.js', '<%= distdir %>/css/*.css'] }},
-    usemin: { html: ['<%= distdir %>/index.html'] },
+    filerev: { files: { src: ['<%= distdir %>js/*.js', '<%= distdir %>css/*.css'] }},
+    usemin: { html: ['<%= distdir %>index.html'] },
     copy: {
       bundle: {
         files: [
-          {dest:'<%= distdir %>/js/',  src: ['app.js'],  expand: true, cwd: '.tmp/concat/js/' },
-          {dest:'<%= distdir %>/css/', src: ['app.css'], expand: true, cwd: '.tmp/concat/css/' }
+          {dest:'<%= distdir %>js/',  src: ['app.js'],  expand: true, cwd: '.tmp/concat/js/' },
+          {dest:'<%= distdir %>css/', src: ['app.css'], expand: true, cwd: '.tmp/concat/css/'}
         ]
       },
       assets: {
         files: [
-          {dest: '<%= distdir %>/fonts/',  src: '*.{ttf,woff,woff2,eof,svg}', expand: true, cwd: 'bower_components/bootstrap/fonts/'},
-          {dest: '<%= distdir %>/fonts/',  src: '*.{ttf,woff,woff2,eof,svg}', expand: true, cwd: 'bower_components/font-awesome/fonts/'},
-          {dest: '<%= distdir %>/fonts/',  src: '*.{ttf,woff,woff2,eof,svg}', expand: true, cwd: 'bower_components/rdash-ui/dist/fonts/'},
-          {dest: '<%= distdir %>/images/', src: '**',                         expand: true, cwd: 'assets/images/'},
-          {dest: '<%= distdir %>/ico',     src: '**',                         expand: true, cwd: 'assets/ico'}
+          {dest:'<%= distdir %>fonts/',  src: '*.{ttf,woff,woff2,eof,svg}', expand: true, cwd: 'bower_components/bootstrap/fonts/'},
+          {dest:'<%= distdir %>fonts/',  src: '*.{ttf,woff,woff2,eof,svg}', expand: true, cwd: 'bower_components/font-awesome/fonts/'},
+          {dest:'<%= distdir %>fonts/',  src: '*.{ttf,woff,woff2,eof,svg}', expand: true, cwd: 'bower_components/rdash-ui/dist/fonts/'},
+          {dest:'<%= distdir %>images/', src: '**',                         expand: true, cwd: '<%= workdir %>assets/images/'},
+          {dest:'<%= distdir %>ico',     src: '**',                         expand: true, cwd: '<%= workdir %>assets/ico'}
         ]
       }
     },
     eslint: {
       src: ['gruntfile.js', '<%= src.js %>'],
-      options: { configFile: '.eslintrc.yml' }
+      options: { configFile: '<%= workdir %>.eslintrc.yml' }
     },
     html2js: {
       app: {
-        options: { base: '.' },
+        options: { base: '<%= workdir %>' },
         src: ['<%= src.tpl %>'],
-        dest: '<%= distdir %>/templates/app.js',
+        dest: '<%= distdir %>templates/app.js',
         module: '<%= pkg.name %>.templates'
       }
     },
     concat: {
       vendor: {
         files: {
-          '<%= distdir %>/css/<%= pkg.name %>.css': ['<%= src.cssVendor %>', '<%= src.css %>'],
-          '<%= distdir %>/js/vendor.js': ['<%= src.jsVendor %>'],
-          '<%= distdir %>/js/angular.js': ['<%= src.angularVendor %>']
+          '<%= distdir %>css/<%= pkg.name %>.css': ['<%= src.cssVendor %>', '<%= src.css %>'],
+          '<%= distdir %>js/vendor.js': ['<%= src.jsVendor %>'],
+          '<%= distdir %>js/angular.js': ['<%= src.angularVendor %>']
         }
       },
       dist: {
         options: { process: true },
         files: {
-          '<%= distdir %>/js/<%= pkg.name %>.js': ['<%= src.js %>', '<%= src.jsTpl %>'],
-          '<%= distdir %>/index.html': ['index.html']
+          '<%= distdir %>js/<%= pkg.name %>.js': ['<%= src.js %>', '<%= src.jsTpl %>'],
+          '<%= distdir %>index.html': ['index.html']
         }
       }
     },
     uglify: {
       dist: {
-        files: { '<%= distdir %>/js/<%= pkg.name %>.js': ['<%= src.js %>', '<%= src.jsTpl %>'] }
+        files: { '<%= distdir %>js/<%= pkg.name %>.js': ['<%= src.js %>', '<%= src.jsTpl %>'] }
       },
       vendor: {
         options: { preserveComments: 'some' }, // Preserve license comments
-        files: { '<%= distdir %>/js/vendor.js': ['<%= src.jsVendor %>'] ,
-                 '<%= distdir %>/js/angular.js': ['<%= src.angularVendor %>']
+        files: { '<%= distdir %>js/vendor.js': ['<%= src.jsVendor %>'],
+                 '<%= distdir %>js/angular.js': ['<%= src.angularVendor %>']
         }
       }
     },
@@ -176,8 +191,8 @@ module.exports = function (grunt) {
             cssnano() // minify the result
           ]
         },
-        src: '<%= distdir %>/css/<%= pkg.name %>.css',
-        dest: '<%= distdir %>/css/app.css'
+        src: '<%= distdir %>css/<%= pkg.name %>.css',
+        dest: '<%= distdir %>css/app.css'
       }
     },
     watch: {
@@ -193,7 +208,7 @@ module.exports = function (grunt) {
           if (grunt.file.isFile( ( p === 'windows' ) ? binfile+'.exe' : binfile )) {
             return 'echo "Portainer binary exists"';
           } else {
-            return 'build/build_in_container.sh ' + p + ' ' + a;
+            return '<%= workdir %>build/build_in_container.sh ' + p + ' ' + a;
           }
         }
       },
@@ -213,7 +228,7 @@ module.exports = function (grunt) {
           if (grunt.file.isFile( ( p === 'win' ) ? 'dist/docker.exe' : 'dist/docker' )) {
             return 'echo "Docker binary exists"';
           } else {
-            return 'build/download_docker_binary.sh ' + p + ' ' + a + ' <%= shippedDockerVersion %>';
+            return '<%= workdir %>build/download_docker_binary.sh ' + p + ' ' + a + ' <%= shippedDockerVersion %>';
           }
         }
       }
@@ -234,23 +249,14 @@ module.exports = function (grunt) {
         },
         files: [
           {
-            expand: true,
-            flatten: true,
+            dest: '.tmp/concat/js',
             src: ['.tmp/concat/js/app.js'],
-            dest: '.tmp/concat/js'
+            expand: true,
+            flatten: true
           }
         ]
       }
     }
   });
 
-  grunt.registerTask('vendor', 'vendor:<min|reg>', function(min) {
-    // The content of `vendor.yml` is loaded to src.jsVendor, src.cssVendor and src.angularVendor
-    // Argument `min` selects between the 'regular' or 'minified' sets
-    var m = ( min === '' ) ? 'minified' : min;
-    var v = grunt.file.readYAML('vendor.yml');
-    for (type in v) { if (v.hasOwnProperty(type)) {
-      grunt.config('src.'+type+'Vendor',v[type][m]);
-    }}
-  });
 };
