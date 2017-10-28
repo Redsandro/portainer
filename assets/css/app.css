@@ -375,6 +375,11 @@ ul.sidebar .sidebar-list a.active {
   font-size: 90%;
 }
 
+ul.sidebar .sidebar-title .form-control {
+  color: #b2bfdc;
+  background: #30426a;
+}
+
 ul.sidebar .sidebar-list .sidebar-sublist a {
   text-indent: 35px;
   font-size: 12px;
