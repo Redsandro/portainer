@@ -48,7 +48,7 @@
               <tr>
                 <td>Name</td>
                 <td ng-if="!container.edit">
-                  {{ container.Name|trimcontainername }}
+                  <a ui-sref="container({id: container.newContainerName})">{{ container.Name|trimcontainername }}</a>
                   <a href="" data-toggle="tooltip" title="Edit container name" ng-click="container.edit = true;"><i class="fa fa-edit"></i></a>
                 </td>
                 <td ng-if="container.edit">
@@ -86,10 +86,10 @@
               <tr>
                 <td colspan="2">
                   <div class="btn-group" role="group" aria-label="...">
-                    <a class="btn btn-outline-secondary" type="button" ui-sref="stats({id: container.Id})"><i class="fa fa-area-chart space-right" aria-hidden="true"></i>Stats</a>
-                    <a class="btn btn-outline-secondary" type="button" ui-sref="containerlogs({id: container.Id})"><i class="fa fa-exclamation-circle space-right" aria-hidden="true"></i>Logs</a>
-                    <a class="btn btn-outline-secondary" type="button" ui-sref="console({id: container.Id})"><i class="fa fa-terminal space-right" aria-hidden="true"></i>Console</a>
-                    <a class="btn btn-outline-secondary" type="button" ui-sref="inspect({id: container.Id})"><i class="fa fa-info-circle space-right" aria-hidden="true"></i>Inspect</a>
+                    <a class="btn btn-outline-secondary" type="button" ui-sref="stats({id: state.tag})"><i class="fa fa-area-chart space-right" aria-hidden="true"></i>Stats</a>
+                    <a class="btn btn-outline-secondary" type="button" ui-sref="containerlogs({id: state.tag})"><i class="fa fa-exclamation-circle space-right" aria-hidden="true"></i>Logs</a>
+                    <a class="btn btn-outline-secondary" type="button" ui-sref="console({id: state.tag})"><i class="fa fa-terminal space-right" aria-hidden="true"></i>Console</a>
+                    <a class="btn btn-outline-secondary" type="button" ui-sref="inspect({id: state.tag})"><i class="fa fa-info-circle space-right" aria-hidden="true"></i>Inspect</a>
                   </div>
                 </td>
               </tr>
