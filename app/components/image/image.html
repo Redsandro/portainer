@@ -1,8 +1,5 @@
-<rd-header>
-  <rd-header-title title="Image details"></rd-header-title>
-  <rd-header-content>
-    <a ui-sref="images">Images</a> &gt; <a ui-sref="image({id: image.Id})">{{ image.Id }}</a>
-  </rd-header-content>
+<rd-header title="Image details">
+  <a ui-sref="images">Images</a> &gt; <a ui-sref="image({id: image.Id})">{{ image.truncid }}</a>
 </rd-header>
 
 <div class="row" ng-if="image.RepoTags.length > 0">
