@@ -3,9 +3,9 @@ html, body, #page-wrapper, #content-wrapper, .page-content, #view {
   width: 100%;
 }
 
-#view {
-  position: relative;
-}
+html { overflow: hidden; }
+
+#view { position: relative; }
 
 .white-space-normal {
   white-space: normal !important;
@@ -766,6 +766,7 @@ rd-header > .row.header .meta .page {
 
 /**/
 
-.row.header .meta .page {
-  padding-top: 7px;
-}
+.row.header .meta .page { padding-top: 7px; }
+
+.popover-no-margin .popover-content { padding: 0px; }
+.popover-no-margin { border-radius: 3px; }

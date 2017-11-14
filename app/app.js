@@ -27,8 +27,18 @@ angular.module('portainer')
       originalSet.apply(cfpLoadingBar, arguments);
     }
   };
-}]);
 
+  $rootScope.Zoom = {
+    Update: function(){ var x = (this.Current===undefined) ? 1 : this.Current; var z=this.Current/100; var c=100/z;
+      this.Style = { 'height':c+'%', 'width':c+'%', 'overflow':'auto',
+        '-webkit-transform':'scale('+z+')', '-moz-transform':'scale('+z+')', 'transform':'scale('+z+')',
+        '-webkit-transform-origin':'0 0', '-moz-transform-origin':'0 0', 'transform-origin':'0 0' };
+    },
+    Current: 100, Clear: function(){ this.Current = 100; this.Update(); },
+  };
+  $rootScope.Zoom.Update();
+
+}]);
 
 function initAuthentication(authManager, Authentication, $rootScope) {
   authManager.checkAuthOnRefresh();

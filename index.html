@@ -66,8 +66,25 @@
           <!-- !loading box -->
         </div>
 
+        <!-- Zoom popover -->
+        <div style="z-index:1000;position:absolute;top:2px;left:2px;line-height:1;font-size:12px"><!--
+       --><label popover-trigger="'click outsideClick'"
+             popover-class="popover-no-margin"
+             popover-append-to-body="true"
+             popover-placement="right-top"
+             uib-popover-template="'tpl_zoom.html'"
+             type="button" class="fa fa-search interactive" style="color:#b2bfdc;margin:0px;"></label>
+        </div>
+
+        <script type="text/ng-template" id="tpl_zoom.html">
+          <div class="popover-content">
+            <input style="border:none;padding:0px;text-align:center;width:44px;color:#000;" type="number" min="50" max="150" ng-model="Zoom.Current" ng-change="Zoom.Update()"><!--
+         --><label ng-click="Zoom.Clear()" style="margin:0px;padding:3px 4px;"><i class="fa fa-eraser interactive"></i></label>
+          </div>
+        </script>
+
         <!-- Main Content -->
-        <div id="view" ui-view="content" ng-if="!applicationState.loading"></div>
+        <div id="view" ui-view="content" ng-if="!applicationState.loading" ng-style="Zoom.Style"></div>
 
       </div><!-- End Page Content -->
     </div><!-- End Content Wrapper -->
