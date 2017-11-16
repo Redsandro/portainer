@@ -8,7 +8,6 @@ mkdir -pv /src-volume/api /docker-binaries dist/public
 cp -r /portainer-deps/Godeps /src-volume/api
 cp -r /portainer-deps/vendor /src-volume/api
 ln -s /portainer-deps/node_modules ./node_modules
-ln -s /portainer-deps/bower_components ./bower_components
 ln -s /docker-binaries ./docker-binaries
 
 export PATH=$PATH:$(pwd)/bin

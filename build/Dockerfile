@@ -11,7 +11,7 @@ WORKDIR /portainer-build
 ADD portainer-godeps.tar /portainer-deps/
 COPY bootstrap.sh /usr/bin/bootstrap
 COPY ansi_color.sh /etc/profile.d/
-COPY package.json bower.json /portainer/
+COPY package.json /portainer/
 
 RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories \
  && echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
@@ -21,15 +21,12 @@ RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositori
  && dos2unix /etc/profile.d/ansi_color.sh \
  && cd /portainer \
  && dos2unix $(ls) \
- && npm install \
- && ./node_modules/bower/bin/bower install --allow-root \
- && mv node_modules /portainer-deps/ && mv bower_components /portainer-deps/ \
+ && npm install && mv node_modules /portainer-deps/ \
  && apk del git nodejs-npm \
  && cd .. && rm -rf portainer /var/cache/apk/* ~/.cache/* /tmp/* \
  && chmod +x /usr/bin/bootstrap \
  && mv /etc/profile.d/color_prompt /etc/profile.d/color_prompt.sh \
- && ln -s /portainer-deps/node_modules/grunt-cli/bin/grunt /usr/bin/grunt \
- && ln -s /portainer-deps/node_modules/bower/bin/bower /usr/bin/bower
+ && ln -s /portainer-deps/node_modules/grunt-cli/bin/grunt /usr/bin/grunt
 
 ENTRYPOINT ["bootstrap"]
 

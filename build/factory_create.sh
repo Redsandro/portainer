@@ -45,7 +45,6 @@ cp "$buildscripts/Dockerfile" ./ && dos2unix Dockerfile
 cp "$buildscripts/bootstrap.sh" ./
 cp "$buildscripts/ansi_color.sh" ./
 cp "$(dirname "$buildscripts")/package.json" ./
-cp "$(dirname "$buildscripts")/bower.json" ./
 
 if [ "$(uname | grep "MINGW")" = "" ]; then group="$USER"; else group="None"; fi
 `command -v sudo` chown -R $USER:$group "$(dirname $buildscripts)/godeps"
