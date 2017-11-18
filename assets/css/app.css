@@ -745,3 +745,7 @@ json-tree .branch-preview {
 .rd-widget-header-left {
   padding-left: 15px;
 }
+
+.emptylist {
+  color: #eee;
+}
