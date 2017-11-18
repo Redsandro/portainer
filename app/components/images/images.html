@@ -66,9 +66,6 @@
         </div>
       </rd-widget-header>
       <rd-widget-taskbar>
-        <div class="pull-right">
-          <input type="text" id="filter" ng-model="state.filter" placeholder="Filter..." class="form-control input-sm" />
-        </div>
         <span class="btn-group btn-group-sm pull-right" style="margin-right: 20px;">
           <label class="btn btn-primary" ng-model="state.containersCountFilter" uib-btn-radio="undefined">
             All
@@ -102,6 +99,9 @@
                     <span ng-show="sortType == 'RepoTags' && !sortReverse" class="glyphicon glyphicon-chevron-down"></span>
                     <span ng-show="sortType == 'RepoTags' && sortReverse" class="glyphicon glyphicon-chevron-up"></span>
                   </a>
+                  <div class="pull-right">
+                    <input type="text" id="filter" ng-model="state.filter" placeholder="Filter..." class="form-control" style="height: 22px; padding-top: 0px; padding-bottom: 0px; margin-left: 5px;"/>
+                  </div>
                 </th>
                 <th>
                   <a ui-sref="images" ng-click="order('VirtualSize')">
