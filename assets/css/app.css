@@ -746,6 +746,12 @@ json-tree .branch-preview {
   padding-left: 15px;
 }
 
-.emptylist {
-  color: #eee;
+.emptylist,
+.emptylist .fa.tooltip-icon {
+  opacity: 0.4;
+}
+
+.emptylist :not(.active),
+.emptylist .fa.tooltip-icon {
+  color: #000;
 }
