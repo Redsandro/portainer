@@ -736,6 +736,12 @@ json-tree .branch-preview {
   opacity: .5;
 }
 
+/**/
+
 .row.header .meta .page {
   padding-top: 7px;
+}
+
+.rd-widget-header-left {
+  padding-left: 15px;
 }
