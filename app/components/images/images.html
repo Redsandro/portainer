@@ -11,6 +11,12 @@
   <div class="col-lg-12 col-md-12 col-xs-12">
     <rd-widget>
       <rd-widget-header icon="fa-download" title="Pull image ">
+        <div class="pull-right">
+          <button type="button" class="btn btn-primary btn-sm" ng-disabled="state.actionInProgress || !formValues.Image" ng-click="pullImage()" button-spinner="state.actionInProgress">
+          <span ng-hide="state.actionInProgress">Pull the image</span>
+          <span ng-show="state.actionInProgress">Download in progress...</span>
+          </button>
+        </div>
       </rd-widget-header>
       <rd-widget-body>
         <form class="form-horizontal">
@@ -26,14 +32,6 @@
             </div>
           </div>
           <!-- !tag-note -->
-          <div class="form-group">
-            <div class="col-sm-12">
-              <button type="button" class="btn btn-primary btn-sm" ng-disabled="state.actionInProgress || !formValues.Image" ng-click="pullImage()" button-spinner="state.actionInProgress">
-                <span ng-hide="state.actionInProgress">Pull the image</span>
-                <span ng-show="state.actionInProgress">Download in progress...</span>
-              </button>
-            </div>
-          </div>
         </form>
       </rd-widget-body>
     </rd-widget>
