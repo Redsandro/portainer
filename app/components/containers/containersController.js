@@ -18,9 +18,19 @@ angular.module('containers', [])
       Stats:   { icon:'area-chart',         ref:'stats'         },
       Inspect: { icon:'info-circle',        ref:'inspect'       }
     },
-    Active: { Console:true, Logs:true, Stats:true, Inspect:true },
-    Expand: false
+    Active: LocalStorage.getQuickAccessItems() || { Console:true, Logs:true, Stats:true, Inspect:true },
+    Expand: LocalStorage.getQuickAccessOptions() || false
   };
+
+  $scope.quickAccessExpandAction = function () {
+    $scope.QuickAccess.Expand = !$scope.QuickAccess.Expand
+    LocalStorage.storeQuickAccessOptions($scope.QuickAccess.Expand);
+  }
+
+  $scope.quickAccessItemAction = function(k) {
+    $scope.QuickAccess.Active[k] = !$scope.QuickAccess.Active[k]
+    LocalStorage.storeQuickAccessItems($scope.QuickAccess.Active);
+  }
 
   $scope.order = function (sortType) {
     $scope.sortReverse = ($scope.sortType === sortType) ? !$scope.sortReverse : false;
